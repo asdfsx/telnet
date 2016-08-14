@@ -217,15 +217,19 @@ func (c *Conn) cmd(cmd byte) error {
 
 func (c *Conn) tryReadByte() (b byte, retry bool, err error) {
 	b, err = c.r.ReadByte()
+    //读一个字节，如果不是iac就返回这个字节，
 	if err != nil || b != cmdIAC {
 		return
 	}
+    //如果第一个字节是iac，再读一个字节，如果出错返回错误
 	b, err = c.r.ReadByte()
 	if err != nil {
 		return
 	}
+    //如果第二个字节不是iac，进入命令处理流程
 	if b != cmdIAC {
 		err = c.cmd(b)
+        //执行命令失败，就返回失败，成功就再重新读接下来的字节
 		if err != nil {
 			return
 		}
